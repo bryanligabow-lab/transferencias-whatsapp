@@ -1,0 +1,16 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+backend/.env
+backend/data/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Build artifact (lo genera el Dockerfile)
+backend/app/static/
+
+# OS
+.DS_Store
