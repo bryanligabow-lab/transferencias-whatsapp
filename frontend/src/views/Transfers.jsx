@@ -1,7 +1,34 @@
 import { useEffect, useState } from "react";
-import { api, imageUrl } from "../api";
+import { api, fetchImageBlob } from "../api";
 
 const today = () => new Date().toISOString().slice(0, 10);
+
+function AuthImage({ transferId, className, style, onClick, alt = "" }) {
+  const [url, setUrl] = useState(null);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    let active = true;
+    let objectUrl = null;
+    setError(false);
+    fetchImageBlob(transferId)
+      .then((u) => {
+        if (active) {
+          objectUrl = u;
+          setUrl(u);
+        } else {
+          URL.revokeObjectURL(u);
+        }
+      })
+      .catch(() => active && setError(true));
+    return () => {
+      active = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [transferId]);
+  if (error) return <span className={className} style={style} title="Imagen no disponible">⚠️</span>;
+  if (!url) return <span className={className} style={style} />;
+  return <img className={className} style={style} src={url} onClick={onClick} alt={alt} />;
+}
 
 export default function Transfers() {
   const [items, setItems] = useState([]);
@@ -90,7 +117,7 @@ export default function Transfers() {
           <tbody>
             {items.map((t) => (
               <tr key={t.id}>
-                <td><img className="thumb" src={imageUrl(t.id)} onClick={() => setPreview(t.id)} alt="" /></td>
+                <td><AuthImage className="thumb" transferId={t.id} onClick={() => setPreview(t.id)} /></td>
                 <td>{t.sender_name || "-"}</td>
                 <td>{t.reference || "-"}</td>
                 <td>{t.account || "-"}</td>
@@ -149,7 +176,7 @@ export default function Transfers() {
 
       {preview && (
         <div className="modal-bg" onClick={() => setPreview(null)}>
-          <img src={imageUrl(preview)} style={{ maxHeight: "85vh", borderRadius: 8 }} alt="comprobante" />
+          <AuthImage transferId={preview} style={{ maxHeight: "85vh", borderRadius: 8 }} alt="comprobante" />
         </div>
       )}
     </div>

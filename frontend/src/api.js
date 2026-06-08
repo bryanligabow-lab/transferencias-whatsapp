@@ -68,3 +68,14 @@ export const api = {
 export function imageUrl(transferId) {
   return `/api/transfers/${transferId}/image`;
 }
+
+// Carga la imagen con el header de autorización y devuelve un object URL (blob).
+// Las etiquetas <img> no envían el token JWT, por eso se descarga vía fetch.
+export async function fetchImageBlob(transferId) {
+  const headers = {};
+  if (getToken()) headers["Authorization"] = `Bearer ${getToken()}`;
+  const res = await fetch(imageUrl(transferId), { headers });
+  if (!res.ok) throw new Error("No se pudo cargar la imagen");
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}
