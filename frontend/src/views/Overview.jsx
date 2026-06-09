@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 
-const today = () => new Date().toISOString().slice(0, 10);
+// Fecha actual en zona de Ecuador (igual que el local_date del backend), no en UTC.
+const today = () =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/Guayaquil" }).format(new Date());
 
 export default function Overview() {
   const [date, setDate] = useState(today());
